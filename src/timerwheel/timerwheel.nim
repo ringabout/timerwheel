@@ -215,7 +215,7 @@ template clearAndExecute(s: var TimerWheel) =
     s.execute(node)
     dec s.taskCounter
 
-template run*(s: var TimerWheel, step: Tick, all = true, tail = true) =
+template run*(s: var TimerWheel, step: Tick, all = true) =
   for i in 0 ..< step:
     s.now[0] = (s.now[0] + 1) and mask
 
@@ -230,11 +230,10 @@ template run*(s: var TimerWheel, step: Tick, all = true, tail = true) =
       inc hlevel
       degrade(s, hlevel)
 
-  when tail:
-    s.clearAndExecute()
+  s.clearAndExecute()
 
 proc advance*(s: var TimerWheel, step: Tick) =
-  run(s, step, true, true)
+  run(s, step, true)
 
 proc update*(s: var TimerWheel, step: Tick) =
-  run(s, step, false, true)
+  run(s, step, false)

@@ -13,4 +13,3 @@ requires "nim >= 1.2.6"
 
 task tests, "Tests all":
   exec "testament all"
-

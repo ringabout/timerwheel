@@ -60,7 +60,6 @@ proc execute*(s: var Timer, t: TimerEventNode) =
       updateTimerEventNode(s.wheel, t)
       add(s, t)
 
-
 proc degrade*(s: var Timer, hlevel: Tick) =
   let 
     idx = s.wheel.now[hlevel]
