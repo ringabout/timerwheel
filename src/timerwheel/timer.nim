@@ -32,7 +32,6 @@ proc initTimer*(interval: Tick = 100): Timer =
   result.interval = interval
 
 proc add*(timer: var Timer, event: TimerEventNode) =
-
   if event != nil:
     timer.wheel.setTimer(event)
     let count = timer.wheel.slots[event.value.level][event.value.scheduleAt].count
@@ -61,10 +60,37 @@ proc execute*(s: var Timer, t: TimerEventNode) =
       updateTimerEventNode(s.wheel, t)
       add(s, t)
 
-proc update*(s: var Timer, step: Tick) =
-  run(s.wheel, step, false, false)
 
-  # Uses our own executor.
+proc degrade*(s: var Timer, hlevel: Tick) =
+  let 
+    idx = s.wheel.now[hlevel]
+    nodes = move s.wheel.slots[hlevel][idx]
+  
+  new s.wheel.slots[hlevel][idx]
+
+  s.wheel.now[hlevel] = (s.wheel.now[hlevel] + 1) and mask
+
+  for node in nodes.nodes:
+    discard remove(nodes, node)
+    if node.value.finishAt <= s.wheel.currentTime:
+      s.execute(node)
+    else:
+      s.wheel.setDegradeTimer(node)
+
+    dec s.wheel.taskCounter
+
+proc update*(s: var Timer, step: Tick) =
+  for i in 0 ..< step:
+    s.wheel.now[0] = (s.wheel.now[0] + 1) and mask
+
+    s.wheel.currentTime = (s.wheel.currentTime + 1) and (totalBits - 1)
+
+    var hlevel = 0
+
+    while s.wheel.now[hlevel] == 0 and hlevel < numLevels - 1:
+      inc hlevel
+      degrade(s, hlevel)
+
   let idx = s.wheel.now[0]
   for node in s.wheel.slots[0][idx].nodes:
     s.execute(node)
