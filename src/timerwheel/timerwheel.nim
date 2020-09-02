@@ -118,7 +118,7 @@ template scheduleWhere(
   # mod (2 ^ n - 1)
   var level = 0'u8
   # decide which level
-  let timeout = eventNode.value.finishAt - s.currentTime
+  let timeout = (eventNode.value.finishAt - s.currentTime) and (totalBits - 1)
   while timeout >= s.duration[level]:
     inc level
 

@@ -22,3 +22,11 @@ block:
   doAssert count1 == 0
 
   doAssert s.currentTime == 255
+
+# block:
+#   var
+#     s = initTimerWheel()
+#     count0 = 0
+#     event0 = initTimerEvent(proc(args: pointer = nil) = inc count0)
+
+#   s.setTimer()
